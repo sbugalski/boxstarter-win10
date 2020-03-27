@@ -15,6 +15,7 @@ function Set-BoxstarterPrepare {
 	)
 	
 	$ErrorActionPreference = "Stop"
+	Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
 	
 	if ($logoutput) {
 		Start-Transcript -OutputDirectory $env:USERPROFILE\Desktop
@@ -26,8 +27,6 @@ function Set-BoxstarterPrepare {
 		New-Item -Path $profile -Type File -Force | Out-Null
 	}
 	. $profile
-
-	Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
 
 	# Install BoxStarter
 	. { Invoke-WebRequest -useb https://boxstarter.org/bootstrapper.ps1 } | Invoke-Expression; Get-Boxstarter -Force
