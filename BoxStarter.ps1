@@ -14,7 +14,6 @@ function Set-BoxstarterPrepare {
 		$logoutput
 	)
 	
-	$ErrorActionPreference = "Stop"
 	Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
 	
 	if ($logoutput) {
@@ -26,10 +25,12 @@ function Set-BoxstarterPrepare {
 	if (! (Test-Path $profile)) {
 		New-Item -Path $profile -Type File -Force | Out-Null
 	}
-	. $profile
 
 	# Install BoxStarter
 	. { Invoke-WebRequest -useb https://boxstarter.org/bootstrapper.ps1 } | Invoke-Expression; Get-Boxstarter -Force
+	
+	# Load Chocolatey scripts
+	. $profile
 
 	### Set Boxstarter ###
 	$Boxstarter.RebootOk = $true # Allow reboots?
@@ -38,8 +39,6 @@ function Set-BoxstarterPrepare {
 
 	### Set Chocolatey
 	choco feature enable --name=allowGlobalConfirmation
-	
-	$ErrorActionPreference = "Continue"
 }
 
 ### Functions
