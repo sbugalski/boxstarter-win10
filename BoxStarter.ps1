@@ -158,7 +158,8 @@ $chocoDev = @(
 	'golang',
 	'gitkraken',
 	'jetbrainstoolbox',
-	'postman'
+	'postman',
+	'cascadiafonts'
 )
 
 ### Editors
