@@ -122,7 +122,8 @@ $chocoTools = @(
 	#'volume2.install',
 	'keepass.install',
 	'sharex',
-	'adobereader'
+	'adobereader',
+	'fzf'
 )
 
 ### Browsers
@@ -244,6 +245,7 @@ Update-Module -Force
 Install-Module -Name Az -Scope CurrentUser -Force
 Install-Module posh-git -Scope CurrentUser -Force
 Install-Module oh-my-posh -Scope CurrentUser -Force
+Install-Module -Scope CurrentUser PSFzf
 
 ### Python PIP
 python -m pip install --upgrade pip
