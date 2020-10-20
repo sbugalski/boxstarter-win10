@@ -6,6 +6,16 @@ $url = "https://raw.githubusercontent.com/sbugalski/boxstarter-win10/initial/Box
 . { Invoke-WebRequest -useb $url } | Invoke-Expression
 #>
 
+## TODO ##
+<#
+Scoop:
+7zip (checkup)
+aria2
+dark (checkup)
+innounp (checkup)
+sudo
+#>
+
 function Set-BoxstarterPrepare {
   [CmdletBinding()]
   param (
