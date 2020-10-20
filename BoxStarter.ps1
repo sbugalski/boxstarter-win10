@@ -60,7 +60,7 @@ function Uninstall-Boxstarter {
   [Environment]::SetEnvironmentVariable('PSModulePath', $env:PSModulePath, 'Machine')
 }
 
-function Set-Cleanup {
+function Invoke-Cleanup {
   Write-Host "Cleaning desktop shortcuts"
   Get-ChildItem -Path $env:PUBLIC\Desktop\*.lnk | Remove-Item
   Get-ChildItem -Path $env:USERPROFILE\Desktop\*.lnk | Remove-Item
@@ -278,5 +278,5 @@ Install-ChocolateyPinnedTaskBarItem -TargetFilePath "${$env:windir}\explorer.exe
 
 ### Finish ###
 Enable-UAC
-Set-Cleanup
+Invoke-Cleanup
 Install-WindowsUpdate -GetUpdatesFromMS -AcceptEula -SuppressReboots
