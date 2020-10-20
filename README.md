@@ -2,7 +2,7 @@
 
 ## Usage
 
-Running boxstarter is simple as running bellow command in PowerShell as administrator.
+Running boxstarter is simple as running bellow commands in PowerShell as administrator.
 
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
