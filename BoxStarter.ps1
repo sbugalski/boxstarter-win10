@@ -7,203 +7,204 @@ $url = "https://raw.githubusercontent.com/sbugalski/boxstarter-win10/initial/Box
 #>
 
 function Set-BoxstarterPrepare {
-	[CmdletBinding()]
-	param (
-		[Parameter()]
-		[Switch]
-		$logoutput
-	)
-	
-	Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
-	
-	if ($logoutput) {
-		Start-Transcript -OutputDirectory $env:USERPROFILE\Desktop
-		get-date
-	}
+  [CmdletBinding()]
+  param (
+    [Parameter()]
+    [Switch]
+    $logoutput
+  )
 
-	# Create Powershell Profile, so chocolatey can append profile file. Later chocolatey commands are used.
-	if (! (Test-Path $profile)) {
-		New-Item -Path $profile -Type File -Force | Out-Null
-	}
+  Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
 
-	# Install BoxStarter
-	. { Invoke-WebRequest -useb https://boxstarter.org/bootstrapper.ps1 } | Invoke-Expression; Get-Boxstarter -Force
-	
-	# Load Chocolatey scripts
-	. $profile
+  if ($logoutput) {
+    Start-Transcript -OutputDirectory $env:USERPROFILE\Desktop
+    get-date
+  }
 
-	### Set Boxstarter ###
-	$Boxstarter.RebootOk = $true # Allow reboots?
-	#$Boxstarter.NoPassword = $false # Is this a machine with no login password?
-	#$Boxstarter.AutoLogin = $true # Save my password securely and auto-login after a reboot
+  # Create Powershell Profile, so chocolatey can append profile file. Later chocolatey commands are used.
+  if (! (Test-Path $profile)) {
+    New-Item -Path $profile -Type File -Force | Out-Null
+  }
 
-	### Set Chocolatey
-	choco feature enable --name=allowGlobalConfirmation
+  # Install BoxStarter
+  . { Invoke-WebRequest -useb https://boxstarter.org/bootstrapper.ps1 } | Invoke-Expression; Get-Boxstarter -Force
+
+  # Load Chocolatey scripts
+  . $profile
+
+  ### Set Boxstarter ###
+  $Boxstarter.RebootOk = $true # Allow reboots?
+  #$Boxstarter.NoPassword = $false # Is this a machine with no login password?
+  #$Boxstarter.AutoLogin = $true # Save my password securely and auto-login after a reboot
+
+  ### Set Chocolatey
+  choco feature enable --name=allowGlobalConfirmation
 }
 
 ### Functions
 function Uninstall-Boxstarter {
-	# Remove the Chocolatey packages in a specific order!
-	'Boxstarter.Azure', 'Boxstarter.TestRunner', 'Boxstarter.WindowsUpdate', 'Boxstarter',
-	'Boxstarter.HyperV', 'Boxstarter.Chocolatey', 'Boxstarter.Bootstrapper', 'Boxstarter.WinConfig', 'BoxStarter.Common' |
-	ForEach-Object { choco uninstall $_ -y }
+  # Remove the Chocolatey packages in a specific order!
+  'Boxstarter.Azure', 'Boxstarter.TestRunner', 'Boxstarter.WindowsUpdate', 'Boxstarter',
+  'Boxstarter.HyperV', 'Boxstarter.Chocolatey', 'Boxstarter.Bootstrapper', 'Boxstarter.WinConfig', 'BoxStarter.Common' |
+  ForEach-Object { choco uninstall $_ -y }
 
-	# Remove the Boxstarter data folder
-	Remove-Item -Path (Join-Path -Path $env:ProgramData -ChildPath 'Boxstarter') -Recurse -Force
+  # Remove the Boxstarter data folder
+  Remove-Item -Path (Join-Path -Path $env:ProgramData -ChildPath 'Boxstarter') -Recurse -Force
 
-	# Remove Boxstarter from the path in both the current session and the system
-	$env:PATH = ($env:PATH -split ';' | Where-Object { $_ -notlike '*Boxstarter*' }) -join ';'
-	[Environment]::SetEnvironmentVariable('PATH', $env:PATH, 'Machine')
+  # Remove Boxstarter from the path in both the current session and the system
+  $env:PATH = ($env:PATH -split ';' | Where-Object { $_ -notlike '*Boxstarter*' }) -join ';'
+  [Environment]::SetEnvironmentVariable('PATH', $env:PATH, 'Machine')
 
-	# Remove Boxstarter from the PSModulePath in both the current session and the system
-	$env:PSModulePath = ($env:PSModulePath -split ';' | Where-Object { $_ -notlike '*Boxstarter*' }) -join ';'
-	[Environment]::SetEnvironmentVariable('PSModulePath', $env:PSModulePath, 'Machine')
+  # Remove Boxstarter from the PSModulePath in both the current session and the system
+  $env:PSModulePath = ($env:PSModulePath -split ';' | Where-Object { $_ -notlike '*Boxstarter*' }) -join ';'
+  [Environment]::SetEnvironmentVariable('PSModulePath', $env:PSModulePath, 'Machine')
 }
 
 function Set-Cleanup {
-	Write-Host "Cleaning desktop shortcuts"
-	Get-ChildItem -Path $env:PUBLIC\Desktop\*.lnk | Remove-Item
-	Get-ChildItem -Path $env:USERPROFILE\Desktop\*.lnk | Remove-Item
-	Get-ChildItem -Path $env:USERPROFILE\Desktop\*.ini | Remove-Item
-	choco feature disable --name=allowGlobalConfirmation
+  Write-Host "Cleaning desktop shortcuts"
+  Get-ChildItem -Path $env:PUBLIC\Desktop\*.lnk | Remove-Item
+  Get-ChildItem -Path $env:USERPROFILE\Desktop\*.lnk | Remove-Item
+  Get-ChildItem -Path $env:USERPROFILE\Desktop\*.ini | Remove-Item
+  choco feature disable --name=allowGlobalConfirmation
 
-	Get-Date
-	Stop-Transcript -ErrorAction "SilentlyContinue"
-	Uninstall-Boxstarter
+  Get-Date
+  Stop-Transcript -ErrorAction "SilentlyContinue"
+  Uninstall-Boxstarter
 }
 
 function Install-ChocoApps ($packageArray) {
-	foreach ($package in $packageArray) {
-		choco install $package --limitoutput --ignoredependencies
-	}
+  foreach ($package in $packageArray) {
+    choco install $package --limitoutput --ignoredependencies
+  }
 
-	if (Test-Path $profile) {
-		RefreshEnv
-	} else {
-		# refreshenv doesn't work properly for Powershell, unless you set Chocolatey Profile https://github.com/chocolatey/choco/blob/master/src/chocolatey.resources/redirects/RefreshEnv.cmd#L11
-		$env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
-	}
+  if (Test-Path $profile) {
+    RefreshEnv
+  }
+  else {
+    # refreshenv doesn't work properly for Powershell, unless you set Chocolatey Profile https://github.com/chocolatey/choco/blob/master/src/chocolatey.resources/redirects/RefreshEnv.cmd#L11
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
+  }
 }
 
 function Set-ChocoPin ($packageArray) {
-	<#
+  <#
 	Pin chocolatey package so it won't be auto updated when using choco upgrade
 	#>
-	foreach ($package in $packageArray) {
-		choco pin add --name $package
-	}
+  foreach ($package in $packageArray) {
+    choco pin add --name $package
+  }
 }
 
 function Install-VsCodeExtensions ($packageArray) {
-	foreach ($package in $packageArray) {
-		codium --install-extension $package
-	}
+  foreach ($package in $packageArray) {
+    codium --install-extension $package
+  }
 }
 
 ### Variables
 ### Tools
 $chocoTools = @(
-	'7zip.install',
-	'sysinternals',
-	'winscp.install',
-	'putty.install',
-	'teracopy',
-	'yubikey-manager',
-	'bulk-crap-uninstaller',
-	'calibre',
-	'ccleaner.portable',
-	'ccenhancer.portable',
-	'chocolateygui',
-	'paint.net',
-	'powertoys',
-	'rdmfree',
-	'rufus',
-	'vlc',
-	#'volume2.install',
-	'keepass.install',
-	'sharex',
-	'adobereader',
-	'fzf'
+  '7zip.install',
+  'sysinternals',
+  'winscp.install',
+  'putty.install',
+  'teracopy',
+  'yubikey-manager',
+  'bulk-crap-uninstaller',
+  'calibre',
+  'ccleaner.portable',
+  'ccenhancer.portable',
+  'chocolateygui',
+  'paint.net',
+  'powertoys',
+  'rdmfree',
+  'rufus',
+  'vlc',
+  #'volume2.install',
+  'keepass.install',
+  'sharex',
+  'adobereader',
+  'fzf'
 )
 
 ### Browsers
 $chocoBrowsers = @(
-	'googlechrome',
-	'opera',
-	'microsoft-edge'
+  'googlechrome',
+  'opera',
+  'microsoft-edge'
 )
 
 ### Cloud
 $chocoCloud = @(
-	'azure-cli',
-	'microsoftazurestorageexplorer',
-	'terraform',
-	'ARMClient',
-	'awscli',
-	'azcopy10',
-	'kubernetes-cli',
-	'kubernetes-helm',
-	'packer'
+  'azure-cli',
+  'microsoftazurestorageexplorer',
+  'terraform',
+  'ARMClient',
+  'awscli',
+  'azcopy10',
+  'kubernetes-cli',
+  'kubernetes-helm',
+  'packer'
 )
 
 ### Dev
 $chocoDev = @(
-	'microsoft-windows-terminal',
-	'docker-desktop',
-	#'rsat',
-	'nodejs.install',
-	'powershell-core',
-	'azure-data-studio',
-	#'python2',
-	'python3',
-	'golang',
-	'gitkraken',
-	'jetbrainstoolbox',
-	'postman',
-	'cascadiafonts'
+  'microsoft-windows-terminal',
+  'docker-desktop',
+  #'rsat',
+  'nodejs.install',
+  'powershell-core',
+  'azure-data-studio',
+  #'python2',
+  'python3',
+  'golang',
+  'gitkraken',
+  'jetbrainstoolbox',
+  'postman',
+  'cascadiafonts'
 )
 
 ### Editors
 $chocoEditors = @(
-	'notepadplusplus.install',
-	'vscodium'
-	#'vscode'
+  'notepadplusplus.install',
+  'vscodium'
+  #'vscode'
 )
 
 ### Work
 $chocoWork = @(
-	'microsoft-teams.install',
-	'office365business',
-	'google-drive-file-stream'
-	#'google-backup-and-sync'
+  'microsoft-teams.install',
+  'office365business',
+  'google-drive-file-stream'
+  #'google-backup-and-sync'
 )
 
 $chocoLogi = @(
-	'logitechgaming',
-	'logitech-options'
+  'logitechgaming',
+  'logitech-options'
 )
 
 ### Games
 $chocoGames = @(
-	'steam',
-	'discord',
-	'spotify',
-	'goggalaxy',
-	'origin'
+  'steam',
+  'discord',
+  'spotify',
+  'goggalaxy',
+  'origin'
 )
 
 $chocoPin = @(
-	'adobereader',
-	$chocoBrowsers,
-	$chocoGames,
-	$chocoWork
+  'adobereader',
+  $chocoBrowsers,
+  $chocoGames,
+  $chocoWork
 )
 
 $vsCodeExt = @(
-	#'2gua.rainbow-brackets',
-	'CoenraadS.bracket-pair-colorizer-2',
-	'eamodio.gitlens',
-	'christian-kohler.path-intellisense'
+  #'2gua.rainbow-brackets',
+  'CoenraadS.bracket-pair-colorizer-2',
+  'eamodio.gitlens',
+  'christian-kohler.path-intellisense'
 )
 
 #### Main ####
