@@ -161,7 +161,8 @@ $chocoDev = @(
   'gitkraken',
   'jetbrainstoolbox',
   'postman',
-  'cascadiafonts'
+  'cascadiafonts',
+  'yarn'
 )
 
 ### Editors
@@ -239,6 +240,9 @@ Install-ChocoApps $chocoGames
 Install-ChocoApps $chocoLogi
 Set-ChocoPin $chocoPin
 Install-VsCodeExtensions $vsCodeExt
+
+npm install -g @mspnp/azure-building-blocks
+
 
 ### Powershell
 Install-PackageProvider -Name NuGet -Force
