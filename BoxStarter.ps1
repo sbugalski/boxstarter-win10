@@ -97,7 +97,7 @@ function Set-ChocoPin ($packageArray) {
 
 function Install-VsCodeExtensions ($packageArray) {
   foreach ($package in $packageArray) {
-    codium --install-extension $package
+    code --install-extension $package
   }
 }
 
@@ -106,32 +106,32 @@ function Install-VsCodeExtensions ($packageArray) {
 $chocoTools = @(
   '7zip.install',
   'sysinternals',
-  'winscp.install',
-  'putty.install',
   'teracopy',
   'yubikey-manager',
   'bulk-crap-uninstaller',
   'calibre',
-  'ccleaner.portable',
-  'ccenhancer.portable',
   'chocolateygui',
   'paint.net',
   'powertoys',
   'rdmfree',
-  'rufus',
   'vlc',
-  #'volume2.install',
   'keepass.install',
   'sharex',
   'adobereader',
-  'fzf'
+  'github-desktop'
+  #'volume2.install',
+  #'rufus',
+  #'ccleaner.portable',
+  #'ccenhancer.portable',
+  #'winscp.install',
+  #'putty.install',
 )
 
 ### Browsers
 $chocoBrowsers = @(
-  'googlechrome',
-  'opera',
-  'microsoft-edge'
+#  'googlechrome',
+#  'opera',
+#  'microsoft-edge'
 )
 
 ### Cloud
@@ -140,49 +140,47 @@ $chocoCloud = @(
   'microsoftazurestorageexplorer',
   'terraform',
   'ARMClient',
-  'awscli',
-  'azcopy10',
-  'kubernetes-cli',
-  'kubernetes-helm',
-  'packer'
+  'azcopy10'
+  #'awscli',
+  #'packer'
 )
 
 ### Dev
 $chocoDev = @(
   'microsoft-windows-terminal',
-  'docker-desktop',
-  #'rsat',
-  'nodejs.install',
   'powershell-core',
   'azure-data-studio',
-  #'python2',
-  'python3',
-  'golang',
-  'gitkraken',
-  'jetbrainstoolbox',
   'postman',
-  'cascadiafonts',
-  'yarn'
+  'cascadiafonts'
+  #'docker-desktop'
+  #'yarn'
+  #'python2',
+  #'python3',
+  #'golang',
+  #'gitkraken',
+  #'jetbrainstoolbox',
+  #'rsat',
+  #'nodejs.install',
 )
 
 ### Editors
 $chocoEditors = @(
   'notepadplusplus.install',
-  'vscodium'
-  #'vscode'
+  'vscode'
+  #'vscodium'
 )
 
 ### Work
 $chocoWork = @(
-  'microsoft-teams.install',
-  'office365business',
-  'google-drive-file-stream'
+  #'microsoft-teams.install',
+  #'office365business',
+  #'google-drive-file-stream'
   #'google-backup-and-sync'
 )
 
 $chocoLogi = @(
-  'logitechgaming',
   'logitech-options'
+  #'logitechgaming'
 )
 
 ### Games
@@ -191,7 +189,26 @@ $chocoGames = @(
   'discord',
   'spotify',
   'goggalaxy',
-  'origin'
+  'epicgameslauncher'
+)
+
+$chocoShellAddons = @(
+  'fzf',
+  'zoxide',
+  'az.powershell /core /desktop'
+  'azswitch',
+  'oh-my-posh'
+)
+
+$chocoK8s = @(
+  'kubernetes-cli',
+  'lens',
+  'kubernetes-helm',
+  'kubens',
+  'kubectx',
+  'kubelogin',
+  'octant',
+  'krew'
 )
 
 $chocoPin = @(
@@ -203,9 +220,9 @@ $chocoPin = @(
 
 $vsCodeExt = @(
   #'2gua.rainbow-brackets',
-  'CoenraadS.bracket-pair-colorizer-2',
-  'eamodio.gitlens',
-  'christian-kohler.path-intellisense'
+  #'CoenraadS.bracket-pair-colorizer-2',
+  #'eamodio.gitlens',
+  #'christian-kohler.path-intellisense'
 )
 
 #### Main ####
@@ -226,9 +243,6 @@ Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-L
 
 ### Install Chocolatey packages
 choco install git --package-parameters="'/GitOnlyOnPath /WindowsTerminal /SChannel /NoAutoCrlf'"
-choco install visualstudio2019enterprise --package-parameters "--add Microsoft.VisualStudio.Component.Git"
-choco install openvpn --params "'/SELECT_LAUNCH=0'"
-#choco install miniconda3 --params="'/AddToPath:0 /InstallationType=AllUsers /RegisterPython=1 /D=C:\Program Files\miniconda3'"
 
 Install-ChocoApps $chocoTools
 Install-ChocoApps $chocoBrowsers
@@ -238,24 +252,33 @@ Install-ChocoApps $chocoEditors
 Install-ChocoApps $chocoWork
 Install-ChocoApps $chocoGames
 Install-ChocoApps $chocoLogi
-Set-ChocoPin $chocoPin
-Install-VsCodeExtensions $vsCodeExt
+Install-ChocoApps $chocoShellAddons
+Install-ChocoApps $chocoK8s
 
-npm install -g @mspnp/azure-building-blocks
+Set-ChocoPin $chocoPin
+
+#Install-VsCodeExtensions $vsCodeExt
+
+#npm install -g @mspnp/azure-building-blocks
+
+#### Visual Studio
+#choco install visualstudio2019enterprise --package-parameters "--add Microsoft.VisualStudio.Component.Git"
+
+#### OpenVPN
+#choco install openvpn --params "'/SELECT_LAUNCH=0'"
+
+#### Python
+#choco install miniconda3 --params="'/AddToPath:0 /InstallationType=AllUsers /RegisterPython=1 /D=C:\Program Files\miniconda3'"
+#### Python PIP
+#python -m pip install --upgrade pip
+#conda update conda
+#python2 -m pip install --upgrade pip
 
 
 ### Powershell
 Install-PackageProvider -Name NuGet -Force
 Update-Module -Force
-Install-Module -Name Az -Scope CurrentUser -Force
-Install-Module posh-git -Scope CurrentUser -Force
-Install-Module oh-my-posh -Scope CurrentUser -Force
 Install-Module -Scope CurrentUser PSFzf
-
-### Python PIP
-python -m pip install --upgrade pip
-#conda update conda
-#python2 -m pip install --upgrade pip
 
 ### Configuration
 # for some reason refreshenv does not affect git.exe
