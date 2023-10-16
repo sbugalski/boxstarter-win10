@@ -279,6 +279,7 @@ Set-ChocoPin $chocoPin
 Install-PackageProvider -Name NuGet -Force
 Update-Module -Force
 Install-Module -Scope CurrentUser PSFzf
+Install-Module -Scope CurrentUser WslInterop
 
 ### Configuration
 # for some reason refreshenv does not affect git.exe
